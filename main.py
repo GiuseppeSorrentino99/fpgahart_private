@@ -22,13 +22,13 @@ def parse_args():
     parser = argparse.ArgumentParser(description="fpga-hart toolflow parser")
     parser.add_argument(
         "model_name",
-        choices=["x3d_m", "slowonly", "r2plus1d_18", "r2plus1d_34", "c3d", "unet"],
+        choices=["x3d_m", "slowonly", "r2plus1d_18", "r2plus1d_34", "c3d", "unet","vmx_dense"],
         type=str,
         help="name of the HAR model",
     )
     parser.add_argument(
         "device_name",
-        choices=["zc706", "zcu104-106", "zcu102", "vc707", "vc709", "vus440"],
+        choices=["zc706", "zcu104-106", "zcu102", "vc707", "vc709", "vus440", "vck5000"],
         type=str,
         help="name of the FPGA device",
     )
