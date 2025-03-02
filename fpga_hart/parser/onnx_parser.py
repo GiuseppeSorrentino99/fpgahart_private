@@ -237,6 +237,9 @@ class OnnxModelParser:
         return tensor_shape
 
     def parse_layers(self) -> None:
+        if len(self.onnx_model.graph.node) != len(self.onnx_model.graph.value_info):
+            print(f"Number of nodes and value_info match: {len(self.onnx_model.graph.node)} and {len(self.onnx_model.graph.value_info)}")
+            
         assert len(self.onnx_model.graph.node) == len(self.onnx_model.graph.value_info), "Number of nodes and value_info mismatch. Aborting..."
 
         input_shape = self.get_tensor_shape(self.onnx_model.graph.input[0].name)

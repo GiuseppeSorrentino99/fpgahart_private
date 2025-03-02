@@ -1,12 +1,15 @@
 #!/bin/bash
 
+shopt -s nullglob
+export PYTHONPATH="$PWD:$PYTHONPATH"
+
 FPGAHART_PATH=$PWD
-EXECUTION_TYPE="partition"
+EXECUTION_TYPE="network"
 TARGET="throughput"
-MODEL_NAME="slowonly"
-PARTITION_FOLDER="slowonly"
+MODEL_NAME="unet"
+PARTITION_FOLDER="fpgahart_hls"
 CONFIG_FILE=""
-HLS_PARENT_DIR="/data/HLS_projects/fpga-hart-hls/$PARTITION_FOLDER/partitions"
+HLS_PARENT_DIR="/home/users/giuseppe.sorrentino/NonRigidReg/fpgahart_hls"
 
 # python main.py $MODEL_NAME $EXECUTION_TYPE $TARGET
 
