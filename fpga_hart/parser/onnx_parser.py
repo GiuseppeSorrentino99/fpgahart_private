@@ -69,6 +69,27 @@ def add_input_from_initializer(model: onnx.ModelProto):
 
     return add_const_value_infos_to_graph(model.graph)
 
+#[GIUSEPPE] Just added this function
+def filter_value_info_per_node(model):
+    # Costruisce un nuovo elenco di value_info usando solo il primo output di ogni nodo.
+    new_value_info = []
+    # Dizionario per accesso rapido: nome -> value_info
+    vi_dict = {vi.name: vi for vi in model.graph.value_info}
+    # Dizionario per accesso rapido agli output del grafo: nome -> output
+    out_dict = {o.name: o for o in model.graph.output}
+    for node in model.graph.node:
+        if node.output:
+            print(node.output)
+            output_name = node.output[0]
+            if output_name in vi_dict:
+                new_value_info.append(vi_dict[output_name])
+            elif output_name in out_dict:
+                new_value_info.append(out_dict[output_name])
+            else:
+                print(f"Warning: no value_info found for output '{output_name}'")
+    model.graph.ClearField("value_info")
+    model.graph.value_info.extend(new_value_info)
+    return model
 
 @dataclass
 class OnnxModelParser:
@@ -87,7 +108,10 @@ class OnnxModelParser:
         #     self.initial_model_inputs = [node.name for node in self.onnx_model.graph.input]
         #     self.initial_model_outputs = [node.name for node in self.onnx_model.graph.output]
         # else:
+        print(f"[GIUSEPPE] LoadingModel: {self.model_path}")
         self.onnx_model = onnx.load(self.model_path)
+        print("[GIUSEPPE] Numero di nodi:", len(self.onnx_model.graph.node))
+        print("[GIUSEPPE] Numero di value_info:", len(self.onnx_model.graph.value_info))
         self.initial_model_inputs = [node.name for node in self.onnx_model.graph.input]
         self.initial_model_outputs = [node.name for node in self.onnx_model.graph.output]
 
@@ -235,11 +259,16 @@ class OnnxModelParser:
                     _logger.critical("Couldn't read the dimensions of tensor")
                     sys.exit()
         return tensor_shape
-
+    
     def parse_layers(self) -> None:
+
+        #[GIUSEPPE] - added the following 3 lines
+        inferred_model = onnx.shape_inference.infer_shapes(self.onnx_model)
+        filtered_model = filter_value_info_per_node(inferred_model)
+        self.onnx_model = filtered_model
+
         if len(self.onnx_model.graph.node) != len(self.onnx_model.graph.value_info):
-            print(f"Number of nodes and value_info match: {len(self.onnx_model.graph.node)} and {len(self.onnx_model.graph.value_info)}")
-            
+            print(f"Number of nodes and value_info match: {len(self.onnx_model.graph.node)} and {len(self.onnx_model.graph.value_info)}")      
         assert len(self.onnx_model.graph.node) == len(self.onnx_model.graph.value_info), "Number of nodes and value_info mismatch. Aborting..."
 
         input_shape = self.get_tensor_shape(self.onnx_model.graph.input[0].name)

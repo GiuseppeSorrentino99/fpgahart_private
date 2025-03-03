@@ -4,7 +4,7 @@ shopt -s nullglob
 export PYTHONPATH="$PWD:$PYTHONPATH"
 
 FPGAHART_PATH=$PWD
-EXECUTION_TYPE="network"
+EXECUTION_TYPE="layer"
 TARGET="throughput"
 MODEL_NAME="unet"
 PARTITION_FOLDER="fpgahart_hls"
